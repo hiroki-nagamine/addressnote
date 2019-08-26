@@ -6,9 +6,12 @@
       <span>マイアドレス帳</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-
+    <v-toolbar-items v-if= "$store.state.login_user">
+      <v-btn @click="logout">ログアウト</v-btn>
+    </v-toolbar-items>
     </v-toolbar>
     <SideNav/>
+
     <v-content>
     <router-view/>
     </v-content>
@@ -16,15 +19,24 @@
 </template>
 
 <script>
-
+import firebase from 'firebase'
 import SideNav from './components/SideNav'
 import { mapActions } from 'vuex'
 
 export default {
   name: 'App',
   components: {
-  SideNav
-},
+    SideNav
+    },
+    created () {
+      firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+          this.setLoginUser(user)
+        } else {
+          this.deleteLoginUser()
+        }
+      })
+    },
 
   data () {
     return {
@@ -32,7 +44,7 @@ export default {
     }
   },
   methods: {
-   ...mapActions(['toggleSideMenu'])
+   ...mapActions(['toggleSideMenu','setLoginUser','logout','deleteLoginUser'])
   }
 }
 </script>
