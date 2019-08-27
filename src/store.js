@@ -30,20 +30,27 @@ export default new Vuex.Store({
     setLoginUser ({ commit }, user) {
       commit('setLoginUser',user)
     },
-    delteLoginUser ({ commit }) {
-      commit('deleteLoginUser')
-    },
-    logout () {
-      firebase.auth().signOut()
+    //firestoreからデータを取得するアクション
+    fetchAddresses ({ getters, commit }) {
+      firebase.firestore().collection(`users/${getters.uid}/addresses`).get().then(snapshot => {
+        snapshot.forEach(doc => commit('addAddress' , doc.data())) //for eachでループしてデータを取り出す
+      })
     },
     login () {
       const google_auth_provider = new firebase.auth.GoogleAuthProvider()
       firebase.auth().signInWithRedirect(google_auth_provider)
     },
+    logout () {
+      firebase.auth().signOut()
+    },
+    deleteLoginUser ({ commit }) {
+      commit('deleteLoginUser')
+    },
      toggleSideMenu ({ commit }) {
        commit('toggleSideMenu')
     },
-    addAddress ({ commit }, address) {
+    addAddress ({ getters, commit }, address) {
+      if (getters.uid) firebase.firestore().collection(`users/${getters.uid}/addresses`).add(address)
       commit('addAddress',address)
     }
   },
@@ -52,6 +59,7 @@ export default new Vuex.Store({
     // stateからデータを取得して加工したデータを返す
     // stateにログインユーザーが存在する場合はdisplayNameを返す
     userName: state => state.login_user ? state.login_user.displayName: '',
-    photoURL: state => state.login_user ? state.login_user.photpURL: ''
+    photoURL: state => state.login_user ? state.login_user.photpURL: '',
+    uid: state => state.login_user ? state.login_user.uid : null
   }
 })
