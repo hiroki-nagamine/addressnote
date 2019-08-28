@@ -19,6 +19,16 @@
             <td class="text-xs-left">{{ props.item.tel }}</td>
             <td class="text-xs-left">{{ props.item.email }}</td>
             <td class="text-xs-left">{{ props.item.address }}</td>
+            <td class="text-xs-left">
+              <span>
+                <router-link :to= "{ name: 'address_edit' , params: { address_id: props.item.id }}">
+                  <v-icon small class="mr-2">edit</v-icon>
+                </router-link>
+              </span>
+              <span>
+                <v-icon small class="mr-2" @click="deleteConfirm(props.item.id)">delete</v-icon>
+              </span>
+             </td>
           </template>
         </v-data-table>
       </v-flex>
@@ -27,6 +37,8 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
   created () {
     this.addresses = this.$store.state.addresses
@@ -37,10 +49,26 @@ export default {
         { text: '名前', value: 'name' },
         { text: '電話番号', value: 'tel' },
         { text: 'メールアドレス', value: 'email' },
-        { text: '住所', value: 'address' }
+        { text: '住所', value: 'address' },
+        { text: '操作', sortable: 'false'}
       ],
       addresses: []
     }
+  },
+  methods: {
+    deleteConfirm (id) {
+      if(confirm('削除してもよろしいですか?')) {
+        this.deleteAddress({ id })
+    }
+  },
+    ...mapActions(['deleteAddress'])
   }
 }
 </script>
+
+// アンダーラインを消す
+<style scoped lang="scss">
+a {
+  text-decoration: none;
+}
+</style>
